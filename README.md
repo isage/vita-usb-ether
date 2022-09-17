@@ -40,6 +40,17 @@ And finally, ethernet config in settings requires some capability flags, so we f
 * usb ethernet with RTL8152.
 * Make an adapter by connecting two usb-female port data pins, supply external power to one (dongle), or both (so vita would charge too), plug vita cable into another and letsgooo.
 * Or buy Y-cable with two female ports.  
+```
+                        + from charger
+                        |
+           VUSB+ >------|-------< VUSB+
+Vita cable D-    >--------------< D-      RTL dongle
+           D+    >--------------< D+
+           VUSB- >------|-------< VUSB-
+                        |
+                        - from charger
+```
+Or [proper schematic](Vita_Eth_Dongle.pdf)
 
 ## Credits
 
