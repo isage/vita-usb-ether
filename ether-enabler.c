@@ -13,6 +13,8 @@ static tai_hook_ref_t g_ksceKernelSysrootCheckModelCapability_hook;
 int (*sceUsbServPortModeSetForDriver)(SceUInt32 usbPort, SceBool clientMode);
 SceBool (*sceUsbServPortModeGetForDriver)(SceUInt32 usbPort);
 
+#if !defined(LITE_MODE)
+
 static int eth_sysevent_handler(int resume, int eventid, void *args, void *opt) {
     if (resume)
     {
@@ -20,6 +22,8 @@ static int eth_sysevent_handler(int resume, int eventid, void *args, void *opt) 
     }
     return 0;
 }
+
+#endif
 
 static int ksceKernelSysrootCheckModelCapability_patched(int cap) {
     int ret = TAI_CONTINUE(int, g_ksceKernelSysrootCheckModelCapability_hook, cap);
@@ -43,9 +47,11 @@ int module_start(int args, void *argv) {
     g_hook = taiHookFunctionExportForKernel(KERNEL_PID, &g_ksceKernelSysrootCheckModelCapability_hook, "SceSysmem", 0x2ED7F97A, 0x8AA268D6, ksceKernelSysrootCheckModelCapability_patched);
     ksceDebugPrintf("taiHookFunctionExportForKernel: 0x%08X\n", g_hook);
 
+#if !defined(LITE_MODE)
     // enable host mode (0) on multicn (port 2)
     ret = sceUsbServPortModeSetForDriver(2, 0);
     ksceDebugPrintf("Port: 2, result: %x \n", ret);
+#endif
 
     int cap = 0;
 
@@ -56,8 +62,10 @@ int module_start(int args, void *argv) {
         ksceDebugPrintf("taiHookFunctionExportForKernel: 0x%08X\n", g_hook);
     }
 
+#if !defined(LITE_MODE)
     // to restore host on resume
     ksceKernelRegisterSysEventHandler("zeth_sysevent", eth_sysevent_handler, NULL);
+#endif
 
     return SCE_KERNEL_START_SUCCESS;
 }

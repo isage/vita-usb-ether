@@ -26,9 +26,14 @@ And finally, ethernet config in settings requires some capability flags, so we f
 
 ## Installation
 
-### Retail
+### Retail + generic rtl dongle
 * copy ether-enabler.skprx to `ur0:tai`
 * copy usb_ether_mtl.skprx to `ur0:tai`
+* add both to `*KERNEL` section of config.txt, order shouldn't matter,
+
+### Retail + testkit dongle
+* copy ether-enabler-lite.skprx to `ur0:tai`
+* copy usb_ether_mmsc.skprx to `ur0:tai`
 * add both to `*KERNEL` section of config.txt, order shouldn't matter,
 
 ### Devkit/Testkit
