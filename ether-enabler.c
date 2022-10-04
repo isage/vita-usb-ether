@@ -10,8 +10,8 @@ int module_get_export_func(SceUID pid, const char *modname, uint32_t libnid, uin
 static SceUID g_hook = 0;
 static tai_hook_ref_t g_ksceKernelSysrootCheckModelCapability_hook;
 
-int (*sceUsbServPortModeSetForDriver)(SceUInt32 usbPort, SceBool clientMode);
-SceBool (*sceUsbServPortModeGetForDriver)(SceUInt32 usbPort);
+int (*sceUsbServMacSelectForDriver)(SceUInt32 usbPort, SceBool clientMode);
+SceBool (*sceUsbServMacGetForDriver)(SceUInt32 usbPort);
 
 #if !defined(LITE_MODE)
 
@@ -40,12 +40,8 @@ int module_start(int args, void *argv) {
     (void)argv;
     int ret;
 
-    module_get_export_func(KERNEL_PID, "SceUsbServ", 0xA75BBDF2, 0x7AD36284, (uintptr_t *)&sceUsbServPortModeSetForDriver);
-    module_get_export_func(KERNEL_PID, "SceUsbServ", 0xA75BBDF2, 0xF0553A69, (uintptr_t *)&sceUsbServPortModeGetForDriver);
-
-    // settings check paf::system::SupportsWiredEthernet(), which check capability 5 and 6, so fake one
-    g_hook = taiHookFunctionExportForKernel(KERNEL_PID, &g_ksceKernelSysrootCheckModelCapability_hook, "SceSysmem", 0x2ED7F97A, 0x8AA268D6, ksceKernelSysrootCheckModelCapability_patched);
-    ksceDebugPrintf("taiHookFunctionExportForKernel: 0x%08X\n", g_hook);
+    module_get_export_func(KERNEL_PID, "SceUsbServ", 0xA75BBDF2, 0x7AD36284, (uintptr_t *)&sceUsbServMacSelectForDriver);
+    module_get_export_func(KERNEL_PID, "SceUsbServ", 0xA75BBDF2, 0xF0553A69, (uintptr_t *)&sceUsbServMacGetForDriver);
 
 #if !defined(LITE_MODE)
     // enable host mode (0) on multicn (port 2)
@@ -53,6 +49,7 @@ int module_start(int args, void *argv) {
     ksceDebugPrintf("Port: 2, result: %x \n", ret);
 #endif
 
+    // settings check paf::system::SupportsWiredEthernet(), which check capability 5 and 6, so fake one
     int cap = 0;
 
     cap = (ksceKernelSysrootCheckModelCapability(5) || ksceKernelSysrootCheckModelCapability(6));
